@@ -18,10 +18,10 @@ BLUE = (50, 50, 200)
 GREEN = (50, 200, 50)
 
 # Load assets
-background = pygame.image.load("background.jpg")  # Add a medieval background
-bard_image = pygame.image.load("bard.png")
+background = pygame.image.load("./assets/hd_Angry.jpeg")  # Add a medieval background
+bard_image = pygame.image.load("./assets/Birds.png")
 note_image = pygame.image.load("note.png")
-knight_image = pygame.image.load("knight.png")
+knight_image = pygame.image.load("./assets/night.png")
 
 # Scale images
 bard_image = pygame.transform.scale(bard_image, (80, 80))
