@@ -12,17 +12,21 @@ pygame.display.set_caption("Angry Bard")
 
 # Colors
 WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 RED = (200, 50, 50)
 BLUE = (50, 50, 200)
 GREEN = (50, 200, 50)
 
-# Load assets (Replace with actual paths or use placeholders)
-bard_image = pygame.Surface((80, 80))
-bard_image.fill(RED)
-note_image = pygame.Surface((20, 20))
-note_image.fill(BLUE)
-knight_image = pygame.Surface((50, 50))
-knight_image.fill(GREEN)
+# Load assets
+background = pygame.image.load("background.jpg")  # Add a medieval background
+bard_image = pygame.image.load("bard.png")
+note_image = pygame.image.load("note.png")
+knight_image = pygame.image.load("knight.png")
+
+# Scale images
+bard_image = pygame.transform.scale(bard_image, (80, 80))
+note_image = pygame.transform.scale(note_image, (20, 20))
+knight_image = pygame.transform.scale(knight_image, (50, 50))
 
 # Bard position
 bard_x, bard_y = 100, HEIGHT - 120
@@ -33,14 +37,23 @@ knights = [(random.randint(500, WIDTH - 50), HEIGHT - 80) for _ in range(3)]
 # Notes (projectiles)
 notes = []
 
+# Fonts and text
+font = pygame.font.Font(None, 36)
+score = 0
+
+def draw_text(text, x, y, color=BLACK):
+    label = font.render(text, True, color)
+    screen.blit(label, (x, y))
+
 # Game loop variables
 running = True
 clock = pygame.time.Clock()
 grav = 0.5
 
 while running:
-    screen.fill(WHITE)
+    screen.blit(background, (0, 0))
     screen.blit(bard_image, (bard_x, bard_y))
+    draw_text(f"Score: {score}", 20, 20)
     
     # Draw knights
     for knight in knights:
@@ -73,7 +86,12 @@ while running:
             if note_rect.colliderect(knight_rect):
                 knights.remove(knight)
                 notes.remove(note)
+                score += 10
                 break
+    
+    # Check for win condition
+    if not knights:
+        draw_text("You Win!", WIDTH//2 - 50, HEIGHT//2, RED)
     
     # Update display
     pygame.display.update()
