@@ -1,100 +1,107 @@
 import pygame
-import math
 import random
 
 # Initialize pygame
 pygame.init()
 
 # Screen dimensions
-WIDTH, HEIGHT = 800, 500
+WIDTH, HEIGHT = 400, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Angry Bard")
+pygame.display.set_caption("Flappy Bard")
+
+# Load background image
+bg_image = pygame.image.load("./assets/hd_ Angry.jpeg")  # Replace with your image path
+bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (200, 50, 50)
-BLUE = (50, 50, 200)
 GREEN = (50, 200, 50)
 
-# Load assets
-background = pygame.image.load("./assets/hd_Angry.jpeg")  # Add a medieval background
-bard_image = pygame.image.load("./assets/Birds.png")
-note_image = pygame.image.load("note.png")
-knight_image = pygame.image.load("./assets/night.png")
-
-# Scale images
-bard_image = pygame.transform.scale(bard_image, (80, 80))
-note_image = pygame.transform.scale(note_image, (20, 20))
-knight_image = pygame.transform.scale(knight_image, (50, 50))
-
-# Bard position
-bard_x, bard_y = 100, HEIGHT - 120
-
-# Enemy knights
-knights = [(random.randint(500, WIDTH - 50), HEIGHT - 80) for _ in range(3)]
-
-# Notes (projectiles)
-notes = []
-
-# Fonts and text
+# Font
 font = pygame.font.Font(None, 36)
-score = 0
 
 def draw_text(text, x, y, color=BLACK):
     label = font.render(text, True, color)
     screen.blit(label, (x, y))
 
-# Game loop variables
-running = True
-clock = pygame.time.Clock()
-grav = 0.5
+def game_loop():
+    bird_x, bird_y = 100, HEIGHT // 2
+    bird_radius = 20
+    grav = 0.5
+    velocity = 0
+    jump_strength = -8
 
-while running:
-    screen.blit(background, (0, 0))
-    screen.blit(bard_image, (bard_x, bard_y))
-    draw_text(f"Score: {score}", 20, 20)
+    pipes = []
+    pipe_width = 60
+    pipe_gap = 150
+    pipe_speed = 3
+    pipe_spawn_timer = 90
+    score = 0
     
-    # Draw knights
-    for knight in knights:
-        screen.blit(knight_image, knight)
+    running = True
+    clock = pygame.time.Clock()
     
-    # Event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    while running:
+        screen.blit(bg_image, (0, 0))
+        draw_text(f"Score: {score}", 20, 20)
+        
+        # Bird physics
+        velocity += grav
+        bird_y += velocity
+        pygame.draw.circle(screen, RED, (bird_x, int(bird_y)), bird_radius)
+        
+        # Pipe generation
+        pipe_spawn_timer -= 1
+        if pipe_spawn_timer <= 0:
+            pipe_spawn_timer = 90
+            pipe_height = random.randint(100, HEIGHT - pipe_gap - 100)
+            pipes.append([WIDTH, pipe_height])
+        
+        # Move and draw pipes
+        for pipe in pipes[:]:
+            pipe[0] -= pipe_speed
+            pygame.draw.rect(screen, GREEN, (pipe[0], 0, pipe_width, pipe[1]))
+            pygame.draw.rect(screen, GREEN, (pipe[0], pipe[1] + pipe_gap, pipe_width, HEIGHT - pipe[1] - pipe_gap))
+            if pipe[0] + pipe_width < 0:
+                pipes.remove(pipe)
+                score += 1
+        
+        # Collision detection
+        for pipe in pipes:
+            if (bird_x + bird_radius > pipe[0] and bird_x - bird_radius < pipe[0] + pipe_width):
+                if bird_y - bird_radius < pipe[1] or bird_y + bird_radius > pipe[1] + pipe_gap:
+                    running = False
+        if bird_y + bird_radius > HEIGHT or bird_y - bird_radius < 0:
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            angle = math.atan2(mouse_y - bard_y, mouse_x - bard_x)
-            speed = 10
-            notes.append([bard_x + 40, bard_y + 40, math.cos(angle) * speed, math.sin(angle) * speed])
+        
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    velocity = jump_strength
+        
+        pygame.display.update()
+        clock.tick(30)
     
-    # Move and draw notes
-    for note in notes[:]:
-        note[0] += note[2]  # X movement
-        note[1] += note[3]  # Y movement
-        note[3] += grav  # Apply gravity
-        screen.blit(note_image, (note[0], note[1]))
-        if note[0] > WIDTH or note[1] > HEIGHT:
-            notes.remove(note)
-    
-    # Collision detection
-    for note in notes[:]:
-        for knight in knights[:]:
-            knight_rect = pygame.Rect(knight[0], knight[1], 50, 50)
-            note_rect = pygame.Rect(note[0], note[1], 20, 20)
-            if note_rect.colliderect(knight_rect):
-                knights.remove(knight)
-                notes.remove(note)
-                score += 10
-                break
-    
-    # Check for win condition
-    if not knights:
-        draw_text("You Win!", WIDTH//2 - 50, HEIGHT//2, RED)
-    
-    # Update display
+    # Game over screen
+    screen.fill(WHITE)
+    draw_text("Game Over! Press R to Restart", WIDTH // 4, HEIGHT // 2, RED)
     pygame.display.update()
-    clock.tick(30)
+    
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    game_loop()
+                    return
 
-pygame.quit()
+game_loop()
