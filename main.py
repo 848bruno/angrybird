@@ -12,7 +12,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Flappy Bard Extreme")
 
 # Load assets
-bg_image = pygame.image.load("./assets/hd_Angry.jpeg").convert()
+bg_image = pygame.image.load("./assets/hd_ Angry.jpeg").convert()
 bg_image = pygame.transform.scale(bg_image, (WIDTH, HEIGHT))
 bird_imgs = [
     pygame.transform.scale(pygame.image.load("./assets/bird1.png").convert_alpha(), (40, 40)),
@@ -22,9 +22,9 @@ pipe_img = pygame.transform.scale(pygame.image.load("./assets/pipe.png").convert
 ground_img = pygame.transform.scale(pygame.image.load("./assets/ground.png").convert_alpha(), (WIDTH, 60))
 
 # Sounds
-jump_sound = pygame.mixer.Sound("./assets/jump.wav")
-score_sound = pygame.mixer.Sound("./assets/score.wav")
-hit_sound = pygame.mixer.Sound("./assets/hit.wav")
+jump_sound = pygame.mixer.Sound("./assets/jump.mp3")
+score_sound = pygame.mixer.Sound("./assets/score.mp3")
+hit_sound = pygame.mixer.Sound("./assets/hit.mp3")
 
 # Colors
 WHITE = (255, 255, 255)
