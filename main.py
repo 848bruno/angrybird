@@ -145,7 +145,7 @@ def game_loop():
 
         pygame.display.update()
         clock.tick(30)
-
+ 
     # Game Over
     screen.fill((0, 0, 0))
     draw_text("Game Over!", WIDTH//4, HEIGHT//3, font=game_over_font)
